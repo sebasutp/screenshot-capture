@@ -15,10 +15,11 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "csso-cli": "^2.0.2",
-    "node-sass": "^5.0.0",
+    "node-sass": "^9.0.0",
     "rollup": "^2.35.1",
     "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "sass": "^1.69.5"
   },
   "engines": {
     "node": ">=14.0.0"

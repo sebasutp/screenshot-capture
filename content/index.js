@@ -1,3 +1,21 @@
+// import { initializeApp } from 'firebase/app';
+// import { getDatabase, ref, push } from 'firebase/database'
+// const { initializeApp } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js');
+// const { getDatabase, ref, push } = require('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js')
+
+// await import('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js')
+// await import('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js')
+
+// const firebase_config = {
+//   databaseURL: "https://screen-shot-9edfb-default-rtdb.europe-west1.firebasedatabase.app/"
+// }
+const config = {
+  projectId: "screen-shot-9edfb"
+  // apiKey: "firebase_api_key",
+  // storageBucket: "firebase_storage_bucket",
+ };
+const app = firebase.initializeApp(config);
+const db = firebase.firestore();
 
 var jcrop, selection
 
@@ -129,6 +147,25 @@ var save = (image, format, save) => {
         'Saved to Clipboard!'
       ].join('\n'))
     })
+  } else if (save == 'server') {
+    // Make the server URL configurable
+    var [header, base64] = image.split(',')
+    let url = window.location.toString();
+    db.collection("screenshots")
+    .add({
+      url: url,
+      image: image,
+    })
+    .then(() => {
+      console.log("Document successfully written!");
+    })
+    .catch((error) => {
+      console.error("Error writing document: ", error);
+    });
+    // TODO: Redirect to screenshot view page
+    alert([
+      'Image inserted in database'
+    ].join('\n'))
   }
 }
 

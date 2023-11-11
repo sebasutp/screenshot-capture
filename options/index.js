@@ -14,7 +14,8 @@ var state = {
   save: [
     {id: 'file', title: 'To File'},
     {id: 'url', title: 'To Clipboard (Data URL String)'},
-    {id: 'binary', title: 'To Clipboard (Binary Image)'}
+    {id: 'binary', title: 'To Clipboard (Binary Image)'},
+    {id: 'server', title: 'External Server'}
   ],
   dpr: [
     {id: true, title: 'Preserve original DPI size'},

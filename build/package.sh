@@ -16,7 +16,6 @@ cd "$(dirname "$0")"
 
 # cleanup
 rm -rf ../vendor
-rm ../screenshot-capture.zip
 mkdir -p ../vendor
 
 # build deps

@@ -47,6 +47,7 @@ function inject (tab) {
 
     chrome.scripting.executeScript({files: ['vendor/jquery.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['vendor/jquery.Jcrop.min.js'], target: {tabId: tab.id}})
+    chrome.scripting.executeScript({files: ['vendor/firebase-compat.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/crop.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/index.js'], target: {tabId: tab.id}})
 
