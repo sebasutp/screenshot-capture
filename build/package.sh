@@ -20,6 +20,7 @@ mkdir -p ../vendor
 
 # build deps
 sh jquery/build.sh
+sh firebase/build.sh
 sh mdc/build.sh
 sh mithril/build.sh
 
