@@ -27,6 +27,49 @@ var state = {
   ]
 }
 
+const form = document.getElementById('backend-options-form');
+const backendUrlInput = document.getElementById('backendUrl');
+const frontendUrlInput = document.getElementById('frontendUrl');
+const backendUserInput = document.getElementById('backendUser');
+const backendPasswordInput = document.getElementById('backendPassword');
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault(); // Prevent default form submission
+
+  const enteredUrl = backendUrlInput.value.trim();
+  const enteredFrontendUrl = frontendUrlInput.value.trim()
+  const enteredUser = backendUserInput.value.trim();
+  const enteredPassword = backendPasswordInput.value.trim();
+
+  // Basic validation (optional)
+  if (!enteredUrl) {
+    alert('Please enter a valid backend URL');
+    return;
+  }
+
+  const backend_config = {
+    url: enteredUrl,
+    frontend_url: enteredFrontendUrl,
+    user: enteredUser,
+    password: enteredPassword};
+  chrome.storage.local.set({
+    screenshot_backend: backend_config
+  }, () => {
+    console.log('Backend data saved:', backend_config);
+    alert('Options saved successfully!');
+  });
+});
+
+// Get the previously stored URL (optional)
+chrome.storage.local.get('screenshot_backend', (data) => {
+  if (data.screenshot_backend) {
+    backendUrlInput.value = data.screenshot_backend.url;
+    frontendUrlInput.value = data.screenshot_backend.frontend_url;
+    backendUserInput.value = data.screenshot_backend.user;
+    backendPasswordInput.value = data.screenshot_backend.password;
+  }
+});
+
 chrome.storage.sync.get((config) => {
   state.method.forEach((item) => item.checked = item.id === config.method)
   state.format.forEach((item) => item.checked = item.id === config.format)
@@ -77,7 +120,7 @@ var onupdate = (item) => (vnode) => {
   }
 }
 
-m.mount(document.querySelector('main'), {
+m.mount(document.getElementById('radio_options'), {
   view: () => [
     m('.bs-callout',
       m('h4.mdc-typography--headline5', 'Capture Method'),

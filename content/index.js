@@ -6,18 +6,7 @@
 // await import('https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js')
 // await import('https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js')
 
-// const firebase_config = {
-//   databaseURL: "https://screen-shot-9edfb-default-rtdb.europe-west1.firebasedatabase.app/"
-// }
-const config = {
-  projectId: "screen-shot-9edfb"
-  // apiKey: "firebase_api_key",
-  // storageBucket: "firebase_storage_bucket",
- };
-const app = firebase.initializeApp(config);
-const db = firebase.firestore();
-
-var jcrop, selection
+var jcrop, selection, token
 
 var overlay = ((active) => (state) => {
   active = typeof state === 'boolean' ? state : state === null ? active : !active
@@ -113,6 +102,70 @@ var filename = (format) => {
   return `Screenshot Capture - ${timestamp(new Date())}.${ext(format)}`
 }
 
+var successful_screenshot_handler = (frontend_url, response) => {
+  const screenshotId = response.external_id;
+  const redirectUrl = `${frontend_url}/item/${screenshotId}`; // Update port if needed
+  window.location.href = redirectUrl; // Redirect the browser
+}
+
+var backend_save = (image, backend_url, token, frontend_url) => {
+  var [header, base64] = image.split(',')
+  const img_url = window.location.toString();
+  const screenshotData = {
+    url: img_url,
+    img: image
+  };
+  fetch(`${backend_url}/screenshots`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(screenshotData)
+  })
+  .then(response => {
+    if (response.ok) {
+      response.json().then(data => {
+        successful_screenshot_handler(frontend_url, data);
+      });
+    } else {
+      console.error('Error sending screenshot:', response.statusText);
+    }
+  })
+}
+
+var backend_login_and_save = (image, format, save) => {
+  chrome.storage.local.get('screenshot_backend', (data) => {
+    let formData = new FormData();
+    let backend_url = null, frontend_url = null;
+    if (data.screenshot_backend) {
+      backend_url = data.screenshot_backend.url;
+      frontend_url = data.screenshot_backend.frontend_url;
+      formData.append('username', data.screenshot_backend.user);
+      formData.append('password', data.screenshot_backend.password);
+    } else {
+      throw new Error('Attempt to use the backend without configuring the URL');
+    }
+    fetch(`${backend_url}/token`, {
+      method: 'POST',
+      body: formData
+    }).then((response) => {
+      if (!response.ok) {
+        alert('Wrong username or password');
+        throw new Error(`Login failed with status: ${response.status}`);
+      }
+      return response.json();
+    }).then((data) => {
+      const token = data.access_token;
+      // Login is successful, proceed to save using the token
+      backend_save(image, backend_url, token, frontend_url);
+    }).catch((error) => {
+      console.error('Login error:', error);
+    });
+  })
+}
+
 var save = (image, format, save) => {
   if (save === 'file') {
     var link = document.createElement('a')
@@ -148,24 +201,7 @@ var save = (image, format, save) => {
       ].join('\n'))
     })
   } else if (save == 'server') {
-    // Make the server URL configurable
-    var [header, base64] = image.split(',')
-    let url = window.location.toString();
-    db.collection("screenshots")
-    .add({
-      url: url,
-      image: image,
-    })
-    .then(() => {
-      console.log("Document successfully written!");
-    })
-    .catch((error) => {
-      console.error("Error writing document: ", error);
-    });
-    // TODO: Redirect to screenshot view page
-    alert([
-      'Image inserted in database'
-    ].join('\n'))
+    backend_login_and_save(image, format, save)
   }
 }
 
