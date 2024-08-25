@@ -118,6 +118,17 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       chrome.action.setTitle({tabId: sender.tab.id, title: 'Screenshot Capture'})
       chrome.action.setBadgeText({tabId: sender.tab.id, text: ''})
     }
+  } else if (req.message === 'send_screenshot') {
+    console.log('backgound: send_message');
+    console.log(req);
+    chrome.tabs.create({ url: req.frontend_url })
+    .then((newTab) => {
+      chrome.scripting.executeScript({files: ['content/send_screenshot.js'], target: {tabId: newTab.id}})
+      setTimeout(() => {
+        chrome.tabs.sendMessage(newTab.id, req.screenshot_data);
+      }, 1000)
+    });
+    console.log("Window creating called");
   }
   return true
 })

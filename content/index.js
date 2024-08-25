@@ -166,6 +166,31 @@ var backend_login_and_save = (image, format, save) => {
   })
 }
 
+var frontend_save = (image, format, save) => {
+  chrome.storage.local.get('screenshot_backend', (data) => {
+    let frontend_url = null;
+    if (data.screenshot_backend) {
+      frontend_url = data.screenshot_backend.frontend_url;
+    } else {
+      throw new Error('Attempt to use the backend without configuring the URL');
+    }
+    const img_url = window.location.toString();
+    const screenshotData = {
+      url: img_url,
+      img: image
+    };
+    console.log("send_screenshot");
+    chrome.runtime.sendMessage({
+      message: 'send_screenshot', 
+      frontend_url:`${frontend_url}/screenshot/plugin`,
+      screenshot_data: screenshotData
+    }, (res) => {
+      console.log(res)
+    })
+    console.log("exiting send_screenshot");
+  });
+}
+
 var save = (image, format, save) => {
   if (save === 'file') {
     var link = document.createElement('a')
@@ -201,7 +226,8 @@ var save = (image, format, save) => {
       ].join('\n'))
     })
   } else if (save == 'server') {
-    backend_login_and_save(image, format, save)
+    //backend_login_and_save(image, format, save)
+    frontend_save(image, format, save);
   }
 }
 
